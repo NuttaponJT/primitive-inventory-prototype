@@ -4,7 +4,7 @@ workflows:
     max_build_duration: 120
     environment:
       android_signing:
-        - keystore_reference
+        - android-debug-keystore
       groups:
         - google_play # <-- (Includes GCLOUD_SERVICE_ACCOUNT_CREDENTIALS)
       vars:
