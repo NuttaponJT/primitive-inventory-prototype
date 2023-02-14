@@ -17,11 +17,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Inventory',
       theme: ThemeData(
         primarySwatch: Colors.red,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Inventory'),
     );
   }
 }
@@ -71,11 +71,15 @@ class _MyHomePageState extends State<MyHomePage> {
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(snapshot.data![index].item_name),
-                  subtitle: Text(snapshot.data![index].item_desc),
-                  tileColor: Color.fromARGB(255, 255, 251, 217), 
-                );
+                return Container(
+                  padding: EdgeInsets.all(16.0), 
+                  child: ListTile(
+                    title: Text(snapshot.data![index].item_name),
+                    subtitle: Text(snapshot.data![index].item_desc),
+                    leading: Icon(Icons.favorite),
+                    tileColor: Color.fromARGB(255, 255, 251, 217), 
+                  )
+                ); 
               },
             );
           } else {
