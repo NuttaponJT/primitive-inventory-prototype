@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'dart:math';
 
 import "./models/inventory_line.dart";
 import "./dbs/inventory_line.dart";
@@ -33,11 +34,26 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  late Future<List<InventoryLine>> _inventoryLines;
+  final inventoryLineDB = InventoryLineDatabase.instance;
 
-  void _incrementCounter() {
+  @override
+  void initState() {
+    super.initState();
+    _inventoryLines = inventoryLineDB.readAllInventoryLine();
+  }
+
+  void _addInventoryLine() async {
+    // ignore: unnecessary_new
+    Random random = new Random();
+    // ignore: prefer_const_constructors
+    await inventoryLineDB.create(InventoryLine(
+      item_name: "Item ${random.nextInt(100)}",
+      item_desc: "Item ${random.nextInt(100)} Description",
+      in_stock: 1,
+    ));
     setState(() {
-      _counter++;
+      _inventoryLines = inventoryLineDB.readAllInventoryLine();
     });
   }
 
@@ -48,22 +64,26 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
+      body: FutureBuilder<List<InventoryLine>>(
+        future: _inventoryLines, 
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(snapshot.data![index].item_name),
+                  subtitle: Text(snapshot.data![index].item_desc),
+                );
+              },
+            );
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        },
+      ), 
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: _addInventoryLine,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
