@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -46,7 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void _addInventoryLine() async {
     // ignore: unnecessary_new
     Random random = new Random();
-    // ignore: prefer_const_constructors
     await inventoryLineDB.create(InventoryLine(
       item_name: "Item ${random.nextInt(100)}",
       item_desc: "Item ${random.nextInt(100)} Description",
@@ -74,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 return ListTile(
                   title: Text(snapshot.data![index].item_name),
                   subtitle: Text(snapshot.data![index].item_desc),
+                  tileColor: Color.fromARGB(255, 255, 251, 217), 
                 );
               },
             );
