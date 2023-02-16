@@ -6,6 +6,7 @@ import 'dart:math';
 
 import "./models/inventory_line.dart";
 import "./dbs/inventory_line.dart";
+import "./pages/inventory_line.dart";
 
 void main() {
   runApp(const MyApp());
@@ -78,6 +79,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     subtitle: Text(snapshot.data![index].item_desc),
                     leading: Icon(Icons.favorite),
                     tileColor: Color.fromARGB(255, 255, 251, 217), 
+                    onTap: (){
+                      Navigator.push(
+                        context, 
+                        MaterialPageRoute(
+                          builder: (context) => InventoryLineFrame(id: (snapshot.data![index].id ?? 0)), 
+                        )
+                      );
+                    }, 
                   )
                 ); 
               },
