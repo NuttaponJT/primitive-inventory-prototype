@@ -81,6 +81,21 @@ CREATE TABLE $tableInventoryLine (
     );
   }
 
+  Future<int> updateColumn(InventoryLine inventory_line, Map<String, Object?> columns) async {
+    final db = await instance.database;
+    Map<String, Object?> inventory_line_json = inventory_line.toJson();
+    for(String key in columns.keys){
+      inventory_line_json.update(key, (value) => columns[key]);
+    }
+
+    return db.update(
+      tableInventoryLine,
+      inventory_line_json,
+      where: '${InventoryLineFields.id} = ?',
+      whereArgs: [inventory_line.id],
+    );
+  }
+
   Future<int> delete(int id) async {
     final db = await instance.database;
 
@@ -104,4 +119,5 @@ CREATE TABLE $tableInventoryLine (
 
     db.close();
   }
+
 }

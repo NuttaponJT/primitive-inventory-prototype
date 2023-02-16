@@ -34,11 +34,28 @@ class InventoryLinePage extends StatefulWidget {
 class _InventoryLinePage extends State<InventoryLinePage> {
   late Future<InventoryLine> _inventoryLine;
   final inventoryLineDB = InventoryLineDatabase.instance;
+  late int inStock;
 
   @override
   void initState() {
     super.initState();
     _inventoryLine = inventoryLineDB.readBook(widget.id);
+  }
+
+  void onClickDecreaseButton() async {
+    InventoryLine inventoryLine = await _inventoryLine;
+    await inventoryLineDB.updateColumn(inventoryLine, {"in_stock": inStock - 1});
+    setState(() {
+      _inventoryLine = inventoryLineDB.readBook(widget.id);
+    });
+  }
+  
+  void onClickIncreaseButton() async {
+    InventoryLine inventoryLine = await _inventoryLine;
+    await inventoryLineDB.updateColumn(inventoryLine, {"in_stock": inStock + 1});
+    setState(() {
+      _inventoryLine = inventoryLineDB.readBook(widget.id);
+    });
   }
 
   @override
@@ -47,18 +64,71 @@ class _InventoryLinePage extends State<InventoryLinePage> {
       future: _inventoryLine,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return Container(
+          inStock = snapshot.data!.in_stock;
+          return Scaffold(
+            body: Container(
             padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0,), 
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start, 
-              crossAxisAlignment: CrossAxisAlignment.center, 
-              children: [
-                Text(snapshot.data!.item_name), 
-                Icon(Icons.favorite), 
-                Text(snapshot.data!.item_desc), 
-                Text(snapshot.data!.in_stock.toString()),
-              ],
-            )
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start, 
+                crossAxisAlignment: CrossAxisAlignment.center, 
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft, 
+                    child: Text(snapshot.data!.item_name),
+                  ), 
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    height: MediaQuery.of(context).size.width * 0.35,
+                    child: Icon(Icons.favorite), 
+                  ), 
+                  Align(
+                    alignment: Alignment.centerLeft, 
+                    child: Text(snapshot.data!.item_desc),
+                  ), 
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 35, 
+                        height: 35, 
+                        child: ElevatedButton(
+                          onPressed: onClickDecreaseButton, 
+                          child: Text(
+                            "-", 
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold
+                            ), 
+                          ),
+                        ),
+                      ),  
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20.0), 
+                        child: Text(
+                          snapshot.data!.in_stock.toString(), 
+                          style: TextStyle(
+                            fontSize: 20.0, 
+                            fontWeight: FontWeight.bold, 
+                          )
+                        ), 
+                      ), 
+                      SizedBox(
+                        width: 35, 
+                        height: 35, 
+                        child: ElevatedButton(
+                          onPressed: onClickIncreaseButton, 
+                          child: Text(
+                            "+", 
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold
+                            ), ),
+                        ),
+                      ),
+                    ],
+                  ), 
+                ],
+              )
+            ), 
           );
         } else if (snapshot.hasError) {
           return Text("${snapshot.error}");

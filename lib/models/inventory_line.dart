@@ -54,4 +54,5 @@ class InventoryLine {
         , InventoryLineFields.item_desc: item_desc
         , InventoryLineFields.in_stock: in_stock
       };
+      
 }
