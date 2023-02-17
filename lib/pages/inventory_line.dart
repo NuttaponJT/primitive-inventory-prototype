@@ -118,14 +118,14 @@ class _InventoryLinePage extends State<InventoryLinePage> {
                   ), 
                   Container(
                     width: MediaQuery.of(context).size.width * 0.8,
-                    height: MediaQuery.of(context).size.width * 0.35,
+                    height: MediaQuery.of(context).size.height * 0.35,
                     child: GestureDetector(
                       onTap: pickImage, 
                       child: snapshot.data!.image_path == ""
                         ? Icon(Icons.add_a_photo)
                         : Image.file(
                           File(snapshot.data!.image_path),
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                         ), 
                     ), 
                   ), 
