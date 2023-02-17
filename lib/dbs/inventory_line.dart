@@ -35,6 +35,7 @@ CREATE TABLE $tableInventoryLine (
   , ${InventoryLineFields.item_name} $textType
   , ${InventoryLineFields.item_desc} $textType
   , ${InventoryLineFields.in_stock} $integerType
+  , ${InventoryLineFields.image_path} $textType
 )
 ''');
   }

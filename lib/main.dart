@@ -52,6 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
       item_name: "Item ${random.nextInt(100)}",
       item_desc: "Item ${random.nextInt(100)} Description",
       in_stock: 1,
+      image_path: "", 
     ));
     setState(() {
       _inventoryLines = inventoryLineDB.readAllInventoryLine();

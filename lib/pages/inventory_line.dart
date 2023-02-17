@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:math';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 import "../models/inventory_line.dart";
 import "../dbs/inventory_line.dart";
@@ -35,12 +38,25 @@ class _InventoryLinePage extends State<InventoryLinePage> {
   late Future<InventoryLine> _inventoryLine;
   final inventoryLineDB = InventoryLineDatabase.instance;
   late int inStock;
+  late TextEditingController _textEditingController;
+  late FocusNode _focusNode;
+  bool _isEditInStock = false;
 
   @override
   void initState() {
     super.initState();
     _inventoryLine = inventoryLineDB.readBook(widget.id);
+    _textEditingController = TextEditingController();
+    _focusNode = FocusNode();
   }
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
 
   void onClickDecreaseButton() async {
     InventoryLine inventoryLine = await _inventoryLine;
@@ -53,6 +69,29 @@ class _InventoryLinePage extends State<InventoryLinePage> {
   void onClickIncreaseButton() async {
     InventoryLine inventoryLine = await _inventoryLine;
     await inventoryLineDB.updateColumn(inventoryLine, {"in_stock": inStock + 1});
+    setState(() {
+      _inventoryLine = inventoryLineDB.readBook(widget.id);
+    });
+  }
+
+  void onSubmittedNumber(number) async {
+    InventoryLine inventoryLine = await _inventoryLine;
+    await inventoryLineDB.updateColumn(inventoryLine, {"in_stock": int.parse(number)});
+    setState(() {
+      _isEditInStock = false;
+      _inventoryLine = inventoryLineDB.readBook(widget.id);
+    });
+  }
+
+  void pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    InventoryLine inventoryLine = await _inventoryLine;
+    final appDir = await getApplicationDocumentsDirectory();
+    final fileName = "${inventoryLine.item_name}.jpg";
+    final appFilePath = join(appDir.path, fileName);
+    await File(image!.path).copy("${appFilePath}");
+    await inventoryLineDB.updateColumn(inventoryLine, {"image_path": appFilePath});
     setState(() {
       _inventoryLine = inventoryLineDB.readBook(widget.id);
     });
@@ -80,7 +119,15 @@ class _InventoryLinePage extends State<InventoryLinePage> {
                   Container(
                     width: MediaQuery.of(context).size.width * 0.8,
                     height: MediaQuery.of(context).size.width * 0.35,
-                    child: Icon(Icons.favorite), 
+                    child: GestureDetector(
+                      onTap: pickImage, 
+                      child: snapshot.data!.image_path == ""
+                        ? Icon(Icons.add_a_photo)
+                        : Image.file(
+                          File(snapshot.data!.image_path),
+                          fit: BoxFit.cover,
+                        ), 
+                    ), 
                   ), 
                   Align(
                     alignment: Alignment.centerLeft, 
@@ -104,13 +151,32 @@ class _InventoryLinePage extends State<InventoryLinePage> {
                       ),  
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 20.0), 
-                        child: Text(
-                          snapshot.data!.in_stock.toString(), 
-                          style: TextStyle(
-                            fontSize: 20.0, 
-                            fontWeight: FontWeight.bold, 
-                          )
-                        ), 
+                        child: GestureDetector(
+                          onTap: (){
+                            setState(() {
+                              _isEditInStock = true;
+                              _textEditingController.text = snapshot.data!.in_stock.toString();
+                              _focusNode.requestFocus();
+                            });
+                          }, 
+                          child: !_isEditInStock
+                            ? Text(
+                              snapshot.data!.in_stock.toString(), 
+                              style: TextStyle(
+                                fontSize: 20.0, 
+                                fontWeight: FontWeight.bold, 
+                              )
+                            )
+                            : Container(
+                              width: 30,
+                              child: TextField(
+                                controller: _textEditingController, 
+                                keyboardType: TextInputType.number, 
+                                focusNode: _focusNode,
+                                onSubmitted: onSubmittedNumber
+                              ),
+                            ), 
+                        ),  
                       ), 
                       SizedBox(
                         width: 35, 
