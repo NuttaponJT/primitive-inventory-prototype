@@ -97,6 +97,36 @@ class _InventoryLinePage extends State<InventoryLinePage> {
     });
   }
 
+  void showEditNameDialog(BuildContext context) async{
+    String input = "";
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Enter Item Name"),
+          content: TextField(
+            onChanged: (value) {
+              input = value;
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () async {
+                InventoryLine inventoryLine = await _inventoryLine;
+                await inventoryLineDB.updateColumn(inventoryLine, {"item_name": input});
+                setState(() {
+                  _inventoryLine = inventoryLineDB.readBook(widget.id);
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<InventoryLine>(
@@ -114,7 +144,12 @@ class _InventoryLinePage extends State<InventoryLinePage> {
                 children: [
                   Align(
                     alignment: Alignment.centerLeft, 
-                    child: Text(snapshot.data!.item_name),
+                    child: GestureDetector(
+                      onTap: () {
+                        showEditNameDialog(context);
+                      }, 
+                      child: Text(snapshot.data!.item_name), 
+                    ), 
                   ), 
                   Container(
                     width: MediaQuery.of(context).size.width * 0.8,
@@ -129,10 +164,10 @@ class _InventoryLinePage extends State<InventoryLinePage> {
                         ), 
                     ), 
                   ), 
-                  Align(
-                    alignment: Alignment.centerLeft, 
-                    child: Text(snapshot.data!.item_desc),
-                  ), 
+                  // Align(
+                  //   alignment: Alignment.centerLeft, 
+                  //   child: Text(snapshot.data!.item_desc),
+                  // ), 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
