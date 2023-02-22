@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:math';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 import "./models/inventory_line.dart";
 import "./dbs/inventory_line.dart";
@@ -78,7 +81,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: ListTile(
                     title: Text(snapshot.data![index].item_name),
                     subtitle: Text(snapshot.data![index].item_desc),
-                    leading: Icon(Icons.favorite),
+                    leading: Container(
+                      child: GestureDetector( 
+                        child: snapshot.data![index].image_path == ""
+                          ? Icon(Icons.add_a_photo)
+                          : Image.file(
+                            File(snapshot.data![index].image_path),
+                            fit: BoxFit.contain,
+                          ), 
+                      ), 
+                    ), 
                     tileColor: Color.fromARGB(255, 255, 251, 217), 
                     onTap: (){
                       Navigator.push(
@@ -86,7 +98,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         MaterialPageRoute(
                           builder: (context) => InventoryLineFrame(id: (snapshot.data![index].id ?? 0)), 
                         )
-                      );
+                      ).then((result) => {
+                        setState(() {
+                          _inventoryLines = inventoryLineDB.readAllInventoryLine();
+                        })
+                      });
                     }, 
                   )
                 ); 

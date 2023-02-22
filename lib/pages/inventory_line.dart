@@ -148,12 +148,19 @@ class _InventoryLinePage extends State<InventoryLinePage> {
                       onTap: () {
                         showEditNameDialog(context);
                       }, 
-                      child: Text(snapshot.data!.item_name), 
+                      child: Text(
+                        snapshot.data!.item_name, 
+                        style: TextStyle(
+                          fontSize: 20.0, 
+                          fontWeight: FontWeight.bold
+                        ),
+                      ), 
                     ), 
                   ), 
                   Container(
                     width: MediaQuery.of(context).size.width * 0.8,
                     height: MediaQuery.of(context).size.height * 0.35,
+                    margin: EdgeInsets.symmetric(vertical: 20.0),
                     child: GestureDetector(
                       onTap: pickImage, 
                       child: snapshot.data!.image_path == ""
