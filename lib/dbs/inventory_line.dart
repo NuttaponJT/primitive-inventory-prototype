@@ -68,7 +68,7 @@ CREATE TABLE $tableInventoryLine (
     final orderBy = '${InventoryLineFields.id} DESC';
     final result = await db.query(tableInventoryLine, orderBy: orderBy);
 
-    return result.map((json) => InventoryLine.fromJson(json)).toList();
+    return result.map((json) => InventoryLine.fromJson(json)).toList().reversed.toList();
   }
 
   Future<int> update(InventoryLine inventory_line) async {

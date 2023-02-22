@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -62,6 +62,44 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void onLongPressInventoryLine(BuildContext context, int inventoryLineID) async {
+    await showDialog(
+      context: context, 
+      builder: (context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  await inventoryLineDB.delete(inventoryLineID);
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  padding: EdgeInsets.all(16.0), 
+                  child: Text("Delete Item"), 
+                ), 
+              ), 
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  padding: EdgeInsets.all(16.0), 
+                  child: Text("Cancel"), 
+                ), 
+              ), 
+            ],
+          ), 
+        );
+      }, 
+    );
+    setState(() {
+      _inventoryLines = inventoryLineDB.readAllInventoryLine();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -78,11 +116,14 @@ class _MyHomePageState extends State<MyHomePage> {
               itemBuilder: (context, index) {
                 return Container(
                   padding: EdgeInsets.all(16.0), 
-                  child: ListTile(
-                    title: Text(snapshot.data![index].item_name),
-                    subtitle: Text(snapshot.data![index].item_desc),
-                    leading: Container(
-                      child: GestureDetector( 
+                  child: GestureDetector(
+                    onLongPress: () {
+                      onLongPressInventoryLine(context, snapshot.data![index].id ?? 0);
+                    },
+                    child: ListTile(
+                      title: Text(snapshot.data![index].item_name),
+                      subtitle: Text(snapshot.data![index].item_desc),
+                      leading: Container(
                         child: snapshot.data![index].image_path == ""
                           ? Icon(Icons.add_a_photo)
                           : Image.file(
@@ -90,20 +131,20 @@ class _MyHomePageState extends State<MyHomePage> {
                             fit: BoxFit.contain,
                           ), 
                       ), 
-                    ), 
-                    tileColor: Color.fromARGB(255, 255, 251, 217), 
-                    onTap: (){
-                      Navigator.push(
-                        context, 
-                        MaterialPageRoute(
-                          builder: (context) => InventoryLineFrame(id: (snapshot.data![index].id ?? 0)), 
-                        )
-                      ).then((result) => {
-                        setState(() {
-                          _inventoryLines = inventoryLineDB.readAllInventoryLine();
-                        })
-                      });
-                    }, 
+                      tileColor: Color.fromARGB(255, 255, 251, 217), 
+                      onTap: (){
+                        Navigator.push(
+                          context, 
+                          MaterialPageRoute(
+                            builder: (context) => InventoryLineFrame(id: (snapshot.data![index].id ?? 0)), 
+                          )
+                        ).then((result) => {
+                          setState(() {
+                            _inventoryLines = inventoryLineDB.readAllInventoryLine();
+                          })
+                        });
+                      }, 
+                    ),
                   )
                 ); 
               },
