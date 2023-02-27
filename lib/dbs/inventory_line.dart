@@ -1,8 +1,11 @@
+// ignore_for_file: unnecessary_brace_in_string_interps
+
 import 'dart:async';
 
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+import '../models/catelog.dart';
 import '../models/inventory_line.dart';
 
 class InventoryLineDatabase {
@@ -36,6 +39,8 @@ CREATE TABLE $tableInventoryLine (
   , ${InventoryLineFields.item_desc} $textType
   , ${InventoryLineFields.in_stock} $integerType
   , ${InventoryLineFields.image_path} $textType
+  , ${InventoryLineFields.categ_id} $integerType
+  , FOREIGN KEY (${InventoryLineFields.categ_id}) REFERENCES ${tableCatelog}(${CatelogFields.id})
 )
 ''');
   }
@@ -69,6 +74,16 @@ CREATE TABLE $tableInventoryLine (
     final result = await db.query(tableInventoryLine, orderBy: orderBy);
 
     return result.map((json) => InventoryLine.fromJson(json)).toList().reversed.toList();
+  }
+
+  Future<List<InventoryLine>> readInventoryLineByCateg(int categ_id) async {
+    final db = await instance.database;
+    final orderBy = '${InventoryLineFields.id} ASC';
+    final where = "${InventoryLineFields.categ_id} = ?";
+    final whereArgs = [categ_id];
+    final result = await db.query(tableInventoryLine, orderBy: orderBy, where: where, whereArgs: whereArgs);
+
+    return result.map((json) => InventoryLine.fromJson(json)).toList();
   }
 
   Future<int> update(InventoryLine inventory_line) async {

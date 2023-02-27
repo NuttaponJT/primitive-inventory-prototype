@@ -8,6 +8,7 @@ class InventoryLineFields {
     , item_desc
     , in_stock
     , image_path
+    , categ_id
   ];
 
   static final String id = '_id';
@@ -15,6 +16,7 @@ class InventoryLineFields {
   static final String item_desc = 'item_desc';
   static final String in_stock = 'in_stock';
   static final String image_path = 'image_path';
+  static final String categ_id = 'categ_id';
 }
 
 class InventoryLine {
@@ -23,6 +25,7 @@ class InventoryLine {
   final String item_desc;
   final int in_stock;
   final String image_path;
+  final int categ_id;
 
   const InventoryLine({
     this.id
@@ -30,6 +33,7 @@ class InventoryLine {
     , required this.item_desc
     , required this.in_stock
     , required this.image_path
+    , required this.categ_id
   });
 
   InventoryLine copy({
@@ -38,6 +42,7 @@ class InventoryLine {
     , String? item_desc
     , int? in_stock
     , String? image_path
+    , int? categ_id
   }) =>
       InventoryLine(
         id: id ?? this.id
@@ -45,6 +50,7 @@ class InventoryLine {
         , item_desc: item_desc ?? this.item_desc
         , in_stock: in_stock ?? this.in_stock
         , image_path: image_path ?? this.image_path
+        , categ_id: categ_id ?? this.categ_id
       );
 
   static InventoryLine fromJson(Map<String, Object?> json) => InventoryLine(
@@ -53,6 +59,7 @@ class InventoryLine {
         , item_desc: json[InventoryLineFields.item_desc] as String
         , in_stock: json[InventoryLineFields.in_stock] as int
         , image_path: json[InventoryLineFields.image_path] as String
+        , categ_id: json[InventoryLineFields.categ_id] as int
       );
 
   Map<String, Object?> toJson() => {
@@ -61,6 +68,7 @@ class InventoryLine {
         , InventoryLineFields.item_desc: item_desc
         , InventoryLineFields.in_stock: in_stock
         , InventoryLineFields.image_path: image_path
+        , InventoryLineFields.categ_id: categ_id
       };
       
 }

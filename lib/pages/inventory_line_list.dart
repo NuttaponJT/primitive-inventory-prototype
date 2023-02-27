@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, await_only_futures
+// ignore_for_file: prefer_const_constructors, prefer_const_constructors_in_immutables, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -7,65 +7,67 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
-import "./models/catelog.dart";
-import "./dbs/catelog.dart";
-import "./pages/inventory_line_list.dart";
+import "../models/inventory_line.dart";
+import "../dbs/inventory_line.dart";
 
-void main() {
-  runApp(const MyApp());
-}
+import "../pages/inventory_line.dart";
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class InventoryLineListFrame extends StatelessWidget {
+  final int id;
+  
+  InventoryLineListFrame({required this.id});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Catelog',
-      theme: ThemeData(
-        primarySwatch: Colors.red,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Inventory Line List"),
       ),
-      home: const MyHomePage(title: 'Catelog'),
+      body: InventoryLineListPage(id: id), 
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
+class InventoryLineListPage extends StatefulWidget {
+  final int id;
+  const InventoryLineListPage({required this.id});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<InventoryLineListPage> createState() => _InventoryLineListPage();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  late Future<List<Catelog>> _Catelog;
-  final CatelogDB = CatelogDatabase.instance;
+class _InventoryLineListPage extends State<InventoryLineListPage> {
+  late Future<List<InventoryLine>> _inventoryLines;
+  final inventoryLineDB = InventoryLineDatabase.instance;
 
   @override
   void initState() {
     super.initState();
-    _Catelog = CatelogDB.readAllCatelog();
+    _inventoryLines = inventoryLineDB.readInventoryLineByCateg(widget.id);
   }
 
-  void _addCatelog() async {
+  void _addInventoryLine() async {
     // ignore: unnecessary_new
     Random random = new Random();
-    await CatelogDB.create(Catelog(
-      categ_name: "Catelog ${random.nextInt(100)}",
+    await inventoryLineDB.create(InventoryLine(
+      item_name: "Item ${random.nextInt(100)}",
+      item_desc: "Item ${random.nextInt(100)} Description",
+      in_stock: 1,
+      image_path: "", 
+      categ_id: widget.id, 
     ));
     setState(() {
-      _Catelog = CatelogDB.readAllCatelog();
+      _inventoryLines = inventoryLineDB.readInventoryLineByCateg(widget.id);
     });
   }
 
-  void showRenameCatelog(BuildContext context, int CatelogID) async {
+  void showRenameInventoryLine(BuildContext context, int inventoryLineID) async {
     String input = "";
     await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Enter Catelog Name"),
+          title: Text("Enter item Name"),
           content: TextField(
             onChanged: (value) {
               input = value;
@@ -75,10 +77,10 @@ class _MyHomePageState extends State<MyHomePage> {
             TextButton(
               child: Text('OK'),
               onPressed: () async {
-                Catelog catelog = await CatelogDB.readBook(CatelogID);
-                await CatelogDB.updateColumn(catelog, {"categ_name": input});
+                InventoryLine inventoryLine = await inventoryLineDB.readBook(inventoryLineID);
+                await inventoryLineDB.updateColumn(inventoryLine, {"item_name": input});
                 setState(() {
-                  _Catelog = CatelogDB.readAllCatelog();
+                  _inventoryLines = inventoryLineDB.readAllInventoryLine();
                 });
                 Navigator.of(context).pop();
               },
@@ -89,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void onLongPressCatelog(BuildContext context, int CatelogID) async {
+  void onLongPressInventoryLine(BuildContext context, int inventoryLineID) async {
     await showDialog(
       context: context, 
       builder: (context) {
@@ -100,17 +102,17 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               GestureDetector(
                 onTap: () async {
-                  showRenameCatelog(context, CatelogID);
+                  showRenameInventoryLine(context, inventoryLineID);
                   Navigator.pop(context);
                 },
                 child: Container(
                   padding: EdgeInsets.all(16.0), 
-                  child: Text("Rename"), 
+                  child: Text("Delete Item"), 
                 ), 
               ), 
               GestureDetector(
                 onTap: () async {
-                  await CatelogDB.delete(CatelogID);
+                  await inventoryLineDB.delete(inventoryLineID);
                   Navigator.pop(context);
                 },
                 child: Container(
@@ -133,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }, 
     );
     setState(() {
-      _Catelog = CatelogDB.readAllCatelog();
+      _inventoryLines = inventoryLineDB.readInventoryLineByCateg(widget.id);
     });
   }
 
@@ -141,11 +143,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: FutureBuilder<List<Catelog>>(
-        future: _Catelog, 
+      body: FutureBuilder<List<InventoryLine>>(
+        future: _inventoryLines, 
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return ListView.builder(
@@ -155,20 +154,29 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding: EdgeInsets.all(16.0), 
                   child: GestureDetector(
                     onLongPress: () {
-                      onLongPressCatelog(context, snapshot.data![index].id ?? 0);
+                      onLongPressInventoryLine(context, snapshot.data![index].id ?? 0);
                     },
                     child: ListTile(
-                      title: Text(snapshot.data![index].categ_name),
+                      title: Text(snapshot.data![index].item_name),
+                      subtitle: Text(snapshot.data![index].item_desc),
+                      leading: Container(
+                        child: snapshot.data![index].image_path == ""
+                          ? Icon(Icons.add_a_photo)
+                          : Image.file(
+                            File(snapshot.data![index].image_path),
+                            fit: BoxFit.contain,
+                          ), 
+                      ), 
                       tileColor: Color.fromARGB(255, 255, 251, 217), 
                       onTap: (){
                         Navigator.push(
                           context, 
                           MaterialPageRoute(
-                            builder: (context) => InventoryLineListFrame(id: (snapshot.data![index].id ?? 0)), 
+                            builder: (context) => InventoryLineFrame(id: (snapshot.data![index].id ?? 0)), 
                           )
                         ).then((result) => {
                           setState(() {
-                            _Catelog = CatelogDB.readAllCatelog();
+                            _inventoryLines = inventoryLineDB.readInventoryLineByCateg(widget.id);
                           })
                         });
                       }, 
@@ -183,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ), 
       floatingActionButton: FloatingActionButton(
-        onPressed: _addCatelog,
+        onPressed: _addInventoryLine,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
