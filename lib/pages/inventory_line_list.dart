@@ -102,12 +102,12 @@ class _InventoryLineListPage extends State<InventoryLineListPage> {
             children: [
               GestureDetector(
                 onTap: () async {
-                  showRenameInventoryLine(context, inventoryLineID);
                   Navigator.pop(context);
+                  showRenameInventoryLine(context, inventoryLineID);
                 },
                 child: Container(
                   padding: EdgeInsets.all(16.0), 
-                  child: Text("Delete Item"), 
+                  child: Text("Rename"), 
                 ), 
               ), 
               GestureDetector(

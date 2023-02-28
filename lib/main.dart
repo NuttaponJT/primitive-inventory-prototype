@@ -100,8 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               GestureDetector(
                 onTap: () async {
-                  showRenameCatelog(context, CatelogID);
                   Navigator.pop(context);
+                  showRenameCatelog(context, CatelogID);
                 },
                 child: Container(
                   padding: EdgeInsets.all(16.0), 
