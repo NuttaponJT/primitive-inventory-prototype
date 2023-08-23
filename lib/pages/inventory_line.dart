@@ -1,9 +1,11 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_constructors_in_immutables, prefer_const_literals_to_create_immutables
+
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:math';
 import 'package:image_picker/image_picker.dart';
+import 'dart:async';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
@@ -35,6 +37,48 @@ class InventoryLinePage extends StatefulWidget {
 }
 
 class _InventoryLinePage extends State<InventoryLinePage> {
+  
+  @override
+  Widget build(BuildContext context) {
+    int _selectedIndex = 0;
+    final List<Widget> _screen = [
+      Screen1Stateful(id: widget.id), 
+      Screen2(), 
+    ];
+
+    return Scaffold(
+      body: _screen[_selectedIndex], 
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Screen 1',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.business),
+            label: 'Screen 2',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+      ), 
+    );
+  }
+}
+
+class Screen1Stateful extends StatefulWidget {
+  final int id;
+  const Screen1Stateful({required this.id});
+
+  @override
+  State<Screen1Stateful> createState() => Screen1State();
+}
+
+class Screen1State extends State<Screen1Stateful> {
   late Future<InventoryLine> _inventoryLine;
   final inventoryLineDB = InventoryLineDatabase.instance;
   late int inStock;
@@ -126,7 +170,7 @@ class _InventoryLinePage extends State<InventoryLinePage> {
       },
     );
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<InventoryLine>(
@@ -243,6 +287,15 @@ class _InventoryLinePage extends State<InventoryLinePage> {
         }
         return const CircularProgressIndicator();
       }, 
+    );
+  }
+}
+
+class Screen2 extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text('Screen 2'),
     );
   }
 }
