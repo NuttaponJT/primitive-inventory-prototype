@@ -21,9 +21,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     MaterialColor whiteSwatch = MaterialColor(
-      0xFFFFFFFF, // The primary color value (white)
-      <int, Color>{
-        50: Color(0xFFFFFFFF), // Shades of white can be defined as needed
+      0xFFFFFFFF, 
+      const <int, Color>{
+        50: Color(0xFFFFFFFF), 
         100: Color(0xFFFFFFFF),
         200: Color(0xFFFFFFFF),
         300: Color(0xFFFFFFFF),
