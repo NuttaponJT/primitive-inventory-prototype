@@ -20,10 +20,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    MaterialColor whiteSwatch = MaterialColor(
+      0xFFFFFFFF, // The primary color value (white)
+      <int, Color>{
+        50: Color(0xFFFFFFFF), // Shades of white can be defined as needed
+        100: Color(0xFFFFFFFF),
+        200: Color(0xFFFFFFFF),
+        300: Color(0xFFFFFFFF),
+        400: Color(0xFFFFFFFF),
+        500: Color(0xFFFFFFFF),
+        600: Color(0xFFFFFFFF),
+        700: Color(0xFFFFFFFF),
+        800: Color(0xFFFFFFFF),
+        900: Color(0xFFFFFFFF),
+      },
+    );
+
     return MaterialApp(
       title: 'Catelog',
       theme: ThemeData(
-        primarySwatch: Colors.red,
+        primarySwatch: whiteSwatch, 
+        appBarTheme: AppBarTheme(
+          elevation: 0, // Set the elevation to 0 to remove the box shadow
+        ),
       ),
       home: const MyHomePage(title: 'Catelog'),
     );
@@ -142,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title), 
       ),
       body: FutureBuilder<List<Catelog>>(
         future: _Catelog, 

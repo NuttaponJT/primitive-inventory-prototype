@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'dart:developer' as developer;
 
 import "../models/inventory_line.dart";
 import "../dbs/inventory_line.dart";
@@ -37,10 +38,10 @@ class InventoryLinePage extends StatefulWidget {
 }
 
 class _InventoryLinePage extends State<InventoryLinePage> {
+  int _selectedIndex = 0;
   
   @override
   Widget build(BuildContext context) {
-    int _selectedIndex = 0;
     final List<Widget> _screen = [
       Screen1Stateful(id: widget.id), 
       Screen2(), 
@@ -49,17 +50,19 @@ class _InventoryLinePage extends State<InventoryLinePage> {
     return Scaffold(
       body: _screen[_selectedIndex], 
       bottomNavigationBar: BottomNavigationBar(
+        unselectedItemColor: Colors.grey, 
+        selectedItemColor: Colors.blueGrey, 
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Screen 1',
-          ),
+            icon: Icon(Icons.list), 
+            label: 'Information', 
+          ), 
           BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Screen 2',
+            icon: Icon(Icons.find_in_page), 
+            label: 'Screen 2', 
           ),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: _selectedIndex, 
         onTap: (index) {
           setState(() {
             _selectedIndex = index;
@@ -292,6 +295,7 @@ class Screen1State extends State<Screen1Stateful> {
 }
 
 class Screen2 extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return Center(
